@@ -20,7 +20,7 @@ fi
 
 AWS_CLI_VERSION=$(aws --version 2>&1 | cut -d/ -f2 | cut -d. -f1)
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
-PROJECT_NAME="howto-outlier-detection2"
+PROJECT_NAME="howto-outlier-detection"
 ECR_URL="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 ECR_IMAGE_PREFIX=${ECR_URL}/${PROJECT_NAME}
 
