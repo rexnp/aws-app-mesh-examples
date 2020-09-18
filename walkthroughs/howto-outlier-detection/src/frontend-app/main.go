@@ -153,7 +153,3 @@ func resetStatsHandler(w http.ResponseWriter, r *http.Request) {
 	hostsStats = nil
 	fmt.Fprintf(w, "stats cleared.\n")
 }
-
-// TODO: deploy this into cloudformation, with 3 backend hosts
-// (no appmesh yet, just ALB -> FE -> BE like howto-ecs-basics)
-// test behaviors using httperf
