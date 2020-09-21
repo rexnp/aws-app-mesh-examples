@@ -4,7 +4,7 @@ shopt -s nullglob
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 MESH_DIR="${DIR}/mesh"
-PROJECT_NAME="howto-outlier-detection2"
+PROJECT_NAME="howto-outlier-detection"
 MESH_NAME=$PROJECT_NAME
 CLOUDMAP_NAMESPACE_NAME=${PROJECT_NAME}.local
 

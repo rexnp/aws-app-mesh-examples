@@ -1,5 +1,4 @@
 {
-    "meshName": "howto-outlier-detection",
     "virtualNodeName": "front-node",
     "spec": {
         "listeners": [

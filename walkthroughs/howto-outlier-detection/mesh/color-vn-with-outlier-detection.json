@@ -1,5 +1,4 @@
 {
-   "meshName": "howto-outlier-detection",
    "virtualNodeName": "color-node",
    "spec": {
       "listeners": [
