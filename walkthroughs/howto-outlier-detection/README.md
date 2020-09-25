@@ -326,7 +326,7 @@ Since we can't target this request to a specific host, observe the response that
 Before we generate more traffic, it might be helpful to reset the frontend stats:
 
 ```bash
-curl $ALB_ENDPOINT/reset_stats
+$ curl $ALB_ENDPOINT/reset_stats
 stats cleared.
 ```
 
@@ -340,14 +340,14 @@ Status Codes  [code:count]                      200:172  500:28
 We expect the newly degraded host to trigger Outlier Detection, while the existing one should also be ejected again if it has been un-ejected. Because ejections take place on intervals and each degraded host has a different ejection time, we see that 28 requests still made it to the two degraded hosts. Liberately send subsequent batches of 200 requests and we should expect only 200 responses:
 
 ```bash
-echo "GET $ALB_ENDPOINT/color/get" | vegeta attack -duration=4s | tee results.bin | vegeta report | grep "Status Codes"
+$ echo "GET $ALB_ENDPOINT/color/get" | vegeta attack -duration=4s | tee results.bin | vegeta report | grep "Status Codes"
 Status Codes  [code:count]                      200:200
 ```
 
 Finally, let's breach the panic threshold by faulting a third host using the same approach above:
 
 ```bash
-curl $ALB_ENDPOINT/color/fault
+$ curl $ALB_ENDPOINT/color/fault
 host: dfb847e5-3134-45a4-bfef-94559ae0dc61 will now respond with 500 on /get. #this host is already faulted, so sending the fault request again
 $ curl $ALB_ENDPOINT/color/fault
 host: c624a8ac-ff80-44db-8560-7930c05974ee will now respond with 500 on /get. #now we have 3 degraded hsots
@@ -393,7 +393,7 @@ cluster.cds_egress_howto-outlier-detection_color-node_http_8080.outlier_detectio
 Furthermore, we can check out the statistics around the panic mode behavior:
 
 ```bash
-curl http://front.howto-outlier-detection.local:9901/stats | grep lb_healthy_panic
+$ curl http://front.howto-outlier-detection.local:9901/stats | grep lb_healthy_panic
 cluster.cds_egress_howto-outlier-detection_amazonaws.lb_healthy_panic: 0
 cluster.cds_egress_howto-outlier-detection_color-node_http_8080.lb_healthy_panic: 771
 cluster.cds_ingress_howto-outlier-detection_front-node_http_8080.lb_healthy_panic: 0
