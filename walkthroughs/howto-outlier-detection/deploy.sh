@@ -60,7 +60,8 @@ deploy_app() {
         --capabilities CAPABILITY_IAM \
         --parameter-overrides "ProjectName=${PROJECT_NAME}" "EnvoyImage=${ENVOY_IMAGE}" \
                               "ColorAppImage=${ECR_IMAGE_PREFIX}/color-app" "FrontAppImage=${ECR_IMAGE_PREFIX}/frontend-app" \
-                              "ColorNodeName=mesh/${PROJECT_NAME}/virtualNode/color-node" "FrontNodeName=mesh/${PROJECT_NAME}/virtualNode/front-node"
+                              "ColorNodeName=mesh/${PROJECT_NAME}/virtualNode/color-node" "FrontNodeName=mesh/${PROJECT_NAME}/virtualNode/front-node" \
+                              "BastionKeyName=${KEY_PAIR_NAME}"
 }
 
 delete_cfn_stack() {
@@ -72,7 +73,7 @@ delete_cfn_stack() {
 }
 
 delete_images() {
-    for app in colorapp feapp; do
+    for app in color-app frontend-app; do
         echo "deleting repository..."
         aws ecr delete-repository \
            --repository-name $PROJECT_NAME/$app \
@@ -86,11 +87,20 @@ confirm_service_linked_role() {
         (echo "Error: no service linked role for App Mesh" && exit 1)
 }
 
-print_endpoint() {
-    echo "Public endpoint:"
+print_alb_endpoint() {
+    echo "Public ALB endpoint:"
     prefix=$(aws cloudformation describe-stacks \
         --stack-name="${PROJECT_NAME}-app" \
         --query="Stacks[0].Outputs[0].OutputValue" \
+        --output=text)
+    echo "${prefix}"
+}
+
+print_bastion_endpoint() {
+    echo "Public bastion endpoint:"
+    prefix=$(aws cloudformation describe-stacks \
+        --stack-name="${PROJECT_NAME}-app" \
+        --query="Stacks[0].Outputs[1].OutputValue" \
         --output=text)
     echo "${prefix}"
 }
@@ -107,7 +117,8 @@ deploy_stacks() {
     deploy_app
 
     #confirm_service_linked_role
-    print_endpoint
+    print_alb_endpoint
+    print_bastion_endpoint
 }
 
 delete_stacks() {

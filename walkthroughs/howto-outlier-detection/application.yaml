@@ -24,7 +24,16 @@ Parameters:
     ColorNodeName:
       Type: String
       Description: AWS_RESOURCE_ARN env variable for the color service's envoy
-      Default: 'mesh/howto-outlier-detection/virtualNode/color-node'  
+      Default: 'mesh/howto-outlier-detection/virtualNode/color-node'
+
+    BastionEC2Ami:
+      Description: EC2 AMI ID
+      Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+      Default: "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+
+    BastionKeyName:
+      Description: The EC2 Key Pair to allow SSH access to the bastion host
+      Type: AWS::EC2::KeyPair::KeyName
 
 Resources:
   
@@ -396,11 +405,42 @@ Resources:
               - Fn::ImportValue:
                   !Sub '${ProjectName}:PrivateSubnet2'
         TaskDefinition: !Ref ColorTaskDef
+
+    BastionSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Security group for the bastion instance
+        VpcId:
+          'Fn::ImportValue': !Sub "${ProjectName}:VPC"
+        SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
   
+    BastionHost:
+      Type: AWS::EC2::Instance
+      Properties:
+        ImageId: !Ref BastionEC2Ami
+        KeyName: !Ref BastionKeyName
+        InstanceType: t2.micro
+        SecurityGroupIds:
+        - !Ref BastionSecurityGroup
+        SubnetId:
+          'Fn::ImportValue': !Sub "${ProjectName}:PublicSubnet1"
+        Tags:
+          - Key: Name
+            Value: ${ProjectName}-bastion-host
+
 Outputs:
     FrontendEndpoint:
       Description: 'Public endpoint for Frontend service'
       Value: !Join ['', ['http://', !GetAtt 'PublicLoadBalancer.DNSName']]
       Export:
         Name: !Sub '${ProjectName}:FrontendEndpoint'
+
+    BastionIP:
+      Description: Public IP for ssh access to bastion host
+      Value:
+        'Fn::GetAtt': [ BastionHost, PublicIp ]
   
